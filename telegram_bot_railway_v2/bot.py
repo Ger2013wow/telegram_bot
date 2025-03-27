@@ -1,8 +1,8 @@
-
 import logging
 import datetime
 import os
-from telegram import Update
+import asyncio
+from telegram import Update, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 from calendar_utils import add_task
 from dateutil.parser import parse as dt_parse
@@ -52,23 +52,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Нет свободного времени в этот день.")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Отправь задачу в формате:задача – 1ч – завтра")
-
-def main():
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
-import asyncio
-from telegram import Bot
+    await update.message.reply_text("Привет! Отправь задачу в формате:\n\nзадача – 1ч – завтра")
 
 async def delete_webhook():
     bot = Bot(token=BOT_TOKEN)
     await bot.delete_webhook(drop_pending_updates=True)
 
-asyncio.run(delete_webhook())
-    
-    app.run_polling()
+async def main():
+    await delete_webhook()
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    await app.run_polling()
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
