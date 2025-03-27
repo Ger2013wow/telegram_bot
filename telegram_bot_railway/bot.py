@@ -51,9 +51,7 @@ def handle_message(update, context):
         update.message.reply_text("❌ Нет свободного времени в этот день.")
 
 def start(update, context):
-    update.message.reply_text("Привет! Отправь задачу в формате:
-
-задача – 1ч – завтра")
+    update.message.reply_text("Привет! Отправь задачу в формате:задача – 1ч – завтра")
 
 def main():
     updater = Updater(BOT_TOKEN, use_context=True)
