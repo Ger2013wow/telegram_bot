@@ -52,9 +52,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Нет свободного времени в этот день.")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Отправь задачу в формате:
-
-задача – 1ч – завтра")
+    await update.message.reply_text("Привет! Отправь задачу в формате:задача – 1ч – завтра")
 
 def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
