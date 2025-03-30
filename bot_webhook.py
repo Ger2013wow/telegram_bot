@@ -73,8 +73,6 @@ async def main():
         port=int(os.environ.get("PORT", 8080)),
         url_path="webhook"
     )
-
-if __name__ == '__main__':
-  # запуск без конфликта с Railway event loop
+# запуск без конфликта с Railway event loop
 import asyncio
 asyncio.get_event_loop().create_task(main())
