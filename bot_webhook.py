@@ -67,10 +67,11 @@ async def main():
 
     # Устанавливаем webhook
     await app.bot.set_webhook(url=WEBHOOK_URL)
+
     await app.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", 8080)),
-        path="/webhook"
+        url_path="webhook"
     )
 
 if __name__ == '__main__':
