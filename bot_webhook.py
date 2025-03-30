@@ -75,5 +75,6 @@ async def main():
     )
 
 if __name__ == '__main__':
-    import asyncio
-    asyncio.run(main())
+  # запуск без конфликта с Railway event loop
+import asyncio
+asyncio.get_event_loop().create_task(main())
