@@ -1,12 +1,10 @@
-
 import os
 import logging
 from telegram import Update
 from telegram.ext import (
-    ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes,
-    filters
+    ApplicationBuilder, CommandHandler, MessageHandler,
+    ContextTypes, filters
 )
-from telegram.ext import Application
 from calendar_utils import add_task
 from dateutil.parser import parse as dt_parse
 
@@ -57,15 +55,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ Нет свободного времени в этот день.")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Отправь задачу в формате:задача – 1ч – завтра")
+    await update.message.reply_text("Привет! Отправь задачу в формате:\n\nзадача – 1ч – завтра")
 
 async def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
-
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # Устанавливаем webhook
     await app.bot.set_webhook(url=WEBHOOK_URL)
 
     await app.run_webhook(
@@ -73,6 +69,9 @@ async def main():
         port=int(os.environ.get("PORT", 8080)),
         url_path="webhook"
     )
-# запуск без конфликта с Railway event loop
+
+# 🔧 Запуск без конфликтов с Railway event loop
 import asyncio
-asyncio.get_event_loop().create_task(main())
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+loop.create_task(main())
