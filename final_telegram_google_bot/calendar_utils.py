@@ -43,10 +43,8 @@ def get_daily_summary():
     events = events_result.get('items', [])
     if not events:
         return "📭 На сегодня нет встреч."
-    summary = "📅 Встречи на сегодня:
-"
+    summary = "📅 Встречи на сегодня:"
     for event in events:
         start_time = event['start'].get('dateTime', event['start'].get('date'))
-        summary += f"— {event['summary']} в {start_time}
-"
+        summary += f"— {event['summary']} в {start_time}"
     return summary
