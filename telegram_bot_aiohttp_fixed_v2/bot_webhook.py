@@ -30,11 +30,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"✅ Задача добавлена: {result.get('summary')}")
         except ValueError as ve:
             await update.message.reply_text(f"⚠️ Ошибка: {ve}\nФормат: задача; продолжительность(мин); дата (YYYY-MM-DD)")
-        except Exception:
+       except Exception as e:
+            logging.exception("❌ Ошибка при добавлении задачи")
             await update.message.reply_text(
                 "⚠️ Непредвиденная ошибка. Проверьте формат:\n"
                 "задача; продолжительность(мин); дата (YYYY-MM-DD)"
-                )
+            )
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
