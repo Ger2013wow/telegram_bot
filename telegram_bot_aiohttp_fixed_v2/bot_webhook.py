@@ -5,7 +5,6 @@ from telegram.ext import Application, ApplicationBuilder, ContextTypes, MessageH
 
 from calendar_utils import add_task, get_daily_summary
 
-# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -14,14 +13,12 @@ logging.basicConfig(
 TOKEN = "7555935793:AAH1cJk4dpJhUiyB9IwBKv3-R4rHaLOmAAo"
 WEBHOOK_URL = "https://telegrambot-production-dd00.up.railway.app/webhook"
 
-# Создание Telegram-приложения
 application: Application = ApplicationBuilder().token(TOKEN).build()
 
 
-# Обработчик входящих сообщений
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
-        logging.warning("❗ Получено обновление без текста.")
+        logging.warning("Получено пустое сообщение или не текст.")
         return
 
     text = update.message.text.strip()
@@ -30,40 +27,46 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if text.lower() == "сводка":
         try:
             summary = get_daily_summary()
+            logging.info("✅ Сводка успешно получена.")
             await update.message.reply_text(summary)
         except Exception as e:
-            logging.exception("❌ Ошибка при получении сводки")
+            logging.exception("Ошибка при получении сводки")
             await update.message.reply_text("⚠️ Ошибка при получении сводки.")
         return
 
-    # Обработка задачи
     try:
         parts = [part.strip() for part in text.split(";")]
+        logging.info(f"📦 Разобранные части: {parts}")
+
         if len(parts) != 3:
-            raise ValueError("Неверное количество параметров.")
+            raise ValueError("Ожидается ровно 3 параметра, разделённых точкой с запятой.")
+
         task, duration_str, date = parts
+        logging.info(f"📋 Задача: {task}, Длительность: {duration_str}, Дата: {date}")
 
         duration = int(duration_str)
+        logging.info("⏱ Продолжительность успешно преобразована в число.")
+
         result = add_task(task, duration, date)
+        logging.info(f"✅ Задача добавлена: {result}")
 
         await update.message.reply_text(f"✅ Задача добавлена: {result.get('summary')}")
     except ValueError as ve:
+        logging.warning(f"⚠️ Ошибка валидации: {ve}")
         await update.message.reply_text(
             f"⚠️ Ошибка: {ve}\nФормат: задача; продолжительность(мин); дата (YYYY-MM-DD)"
         )
     except Exception as e:
-        logging.exception("❌ Ошибка при добавлении задачи")
+        logging.exception("❌ Необработанная ошибка при добавлении задачи")
         await update.message.reply_text(
-            "⚠️ Непредвиденная ошибка. Проверьте формат:\n"
+            "⚠️ Ошибка при добавлении задачи. Проверьте формат:\n"
             "задача; продолжительность(мин); дата (YYYY-MM-DD)"
         )
 
 
-# Регистрируем обработчик сообщений
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
 
-# aiohttp webhook handler
 async def webhook_handler(request):
     try:
         data = await request.json()
@@ -75,7 +78,6 @@ async def webhook_handler(request):
         return web.Response(status=500, text="Internal Server Error")
 
 
-# Запуск aiohttp-приложения
 async def main():
     await application.initialize()
     await application.bot.set_webhook(url=WEBHOOK_URL)
